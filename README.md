@@ -37,7 +37,7 @@
 
 
 
-Big Data
+## Big Data
 
 |Course	                   |Title	                             |Status   |
 | ------------------------ |:---------------------------------:| -------:|
@@ -51,3 +51,13 @@ Big Data
 |<a href="https://www.udemy.com/the-ultimate-hands-on-hadoop-tame-your-big-data"> Udemy</a> 	 |	The Ultimate Hands-On Hadoop - Tame your Big Data!	        |To Do|
 
 
+
+## Statistics & Probability theory
+
+|Course	                   |Title	                             |Status   |
+| ------------------------ |:---------------------------------:| -------:|
+|<a href="https://www.datacamp.com/tracks/statistics-fundamentals-with-python"> DataCamp</a> 	 |	Statistics Fundamentals with Python	|To Do|
+|<a href="https://stepik.org/course/76/"> Stepik</a> 	   |	Основы статистики	|To Do|
+|<a href="https://stepik.org/course/524/"> Stepik</a> 	  |	Основы статистики. Часть 2	|To Do|
+|<a href="https://stepik.org/course/2152/"> Stepik</a> 	 |	Основы статистики. Часть 3	|To Do|
+|<a href="https://stepik.org/course/3089/"> Stepik</a> 	 |	Теория вероятностей|To Do|
