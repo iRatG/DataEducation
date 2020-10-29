@@ -13,9 +13,9 @@
 ## Data Science
 | Course                   | Title                    							                        | Status  |
 | ------------------------ |:-------------------------------------------------------:| -------:|
-| <a href="https://www.coursera.org/learn/vvedenie-mashinnoe-obuchenie">Coursera</a> | Введение в машинное обучение  |  Done   |
-| <a href="https://www.coursera.org/learn/data-scientists-tools">Coursera</a>        | The Data Scientist’s Toolbox  |  Done   |
-| <a href="https://www.coursera.org/learn/wharton-customer-analytics">Coursera</a>   | Customer Analytics            |  Done   |
+| <a href="https://www.coursera.org/learn/vvedenie-mashinnoe-obuchenie">Coursera</a> | Введение в машинное обучение  |  <a href="https://coursera.org/share/54f89a38f4f9a11f9c4ba281e324a7f6">Done </a>  |
+| <a href="https://www.coursera.org/learn/data-scientists-tools">Coursera</a>        | The Data Scientist’s Toolbox  |  <a href="https://coursera.org/share/06439500140806cf87f0a811db140092">Done  </a> |
+| <a href="https://www.coursera.org/learn/wharton-customer-analytics">Coursera</a>   | Customer Analytics            |  <a href="https://coursera.org/share/760011532f87299f616cb6cf8d7340aa">Done   </a>|
 
 
 ## Project Planning
