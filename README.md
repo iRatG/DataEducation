@@ -5,8 +5,8 @@
 ## Python
 | Course                   | Title                    							                   | Status  |
 | ------------------------ |:--------------------------------------------------:| -------:|
-| <a href="https://www.coursera.org/learn/oop-patterns-python">Coursera</a>     | ООП и паттерны проектирования в Python  |  Done   |
-| <a href="https://www.coursera.org/learn/diving-in-python">Coursera</a>        | Погружение в Python                 			 |  Done   |
+| <a href="https://www.coursera.org/learn/oop-patterns-python">Coursera</a>     | ООП и паттерны проектирования в Python  | <a href="https://coursera.org/share/f4bba1b4ed9129894434cdbe50b18023"> Done   </a>|
+| <a href="https://www.coursera.org/learn/diving-in-python">Coursera</a>        | Погружение в Python                 			 |  <a href="https://coursera.org/share/76bb5075cd0713139fecfb8ce84b4ff5"> Done </a>   |
 | <a href="https://www.coursera.org/learn/diving-in-python">Coursera</a>        | Создание Web-сервисов на Python     			 |  <a href="https://coursera.org/share/f51fee3a4dbb0fe0a729a1739b693e3c">Done </a>  |
 
 
