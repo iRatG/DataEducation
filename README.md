@@ -21,9 +21,9 @@
 ## Project Planning
 | Course                   | Title                    							                   | Status  |
 | ------------------------ |:--------------------------------------------------:| -------:|
-| <a href="https://www.coursera.org/learn/project-risk-management">Coursera</a> | Managing Project Risks and Changes   |  Done   |
-| <a href="https://www.coursera.org/learn/schedule-projects">Coursera</a>       | Budgeting and Scheduling Projects    |  Done   |
-| <a href="https://www.coursera.org/learn/project-planning">Coursera</a>        | Initiating and Planning Projects     |  Done   |
+| <a href="https://www.coursera.org/learn/project-risk-management">Coursera</a> | Managing Project Risks and Changes   |  <a href="https://coursera.org/share/c2160d1afce63d6f5dea9bff008347f8"> Done </a>   |
+| <a href="https://www.coursera.org/learn/schedule-projects">Coursera</a>       | Budgeting and Scheduling Projects    |  <a href="https://coursera.org/share/f198cc16be82df90e7044ef8483fc95a"> Done </a>   |
+| <a href="https://www.coursera.org/learn/project-planning">Coursera</a>        | Initiating and Planning Projects     |  <a href ="https://coursera.org/share/20525142f1cd7ff236338a184c067cda"> Done </a>  |
 
 
 ## Algorithms & Data Structures
