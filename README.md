@@ -42,7 +42,8 @@
 
 |Course	                   |Title	                             |Status   |
 | ------------------------ |:---------------------------------:| -------:|
-|<a href="https://www.coursera.org/learn/big-data-essentials/home/welcome">Coursera</a>| Big Data Essentials: HDFS, MapReduce and Spark RDD| <a href="https://coursera.org/share/82ed5d2185a3ccf4b4fc471595676d2f" >Done </a>|
+|<a href="https://www.coursera.org/learn/big-data-essentials/home/welcome">Coursera</a>| Big Data Essentials: HDFS, MapReduce and Spark RDD| <a href="https://coursera.org/share/82ed5d2185a3ccf4b4fc471595676d2f"> Done </a>|
+|<a href="https://www.coursera.org/learn/big-data-introduction/home/welcome">Coursera</a>|Introduction to Big Data|<a href="https://coursera.org/share/432541b0e618f66e04b2912784216641">Done</a>|
 |<a href="https://www.datacamp.com/tracks/data-engineer-with-python"> DataCamp</a> 	 |	Data Engineer with Python	        |To Do|
 |<a href="https://stepik.org/course/150/"> Stepik</a> 	 |	Hadoop. Система для обработки больших объемов данных	        |To Do|
 |<a href="https://www.udacity.com/course/intro-to-hadoop-and-mapreduce"> Udacity</a> 	 |	Intro to Hadoop and MapReduce	        |To Do|
