@@ -1,6 +1,16 @@
 # DataEducation
  Education
 
+## Publication
+| <a href="https://habr.com/ru/users/ayratgil/posts/"> Статьи на habr'e </a>|
+|----|
+|<a href="https://habr.com/ru/post/538188/"> Глубокие нейронные деревья принятия решений </a>|
+|<a href="https://habr.com/ru/post/537968/"> Языковое моделирование с помощью управляемых сверточных сетей </a>|
+|<a href="https://habr.com/ru/post/534252/"> Обучение на табличных данных. TABNet. Часть 2. Реализация </a>|
+|<a href="https://habr.com/ru/post/534186/"> Обучение на табличных данных. TABNet. Часть 1 </a>|
+
+
+
 
 ## Python
 | Course                   | Title                    							                   | Status  |
