@@ -1,5 +1,5 @@
-# DataEducation
- Education
+# Data Education
+ Self Education
 
 ## Publication
 | <a href="https://habr.com/ru/users/ayratgil/posts/"> Статьи на habr'e </a>|
