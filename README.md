@@ -4,6 +4,7 @@
 ## Publication
 | <a href="https://habr.com/ru/users/ayratgil/posts/"> Статьи на habr'e </a>|
 |----|
+|<a href="https://habr.com/ru/post/540736/"> TabNet. Немного деталей </a>|
 |<a href="https://habr.com/ru/post/539566/"> Автоматическое обучение взаимодействию функций с помощью самонастраиваемых нейронных сетей </a>|
 |<a href="https://habr.com/ru/post/539282/"> Изучение важных функций путем распространения различий в активации </a>|
 |<a href="https://habr.com/ru/post/538188/"> Глубокие нейронные деревья принятия решений </a>|
