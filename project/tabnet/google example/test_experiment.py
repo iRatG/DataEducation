@@ -187,25 +187,32 @@ def main(unused_argv):
   # Объединяет все информацию, собранную по графу по умолчанию
   summaries = tf.summary.merge_all()
 
+  # запись логов в заданную директорию
   with tf.Session() as sess:
     summary_writer = tf.summary.FileWriter("./tflog/" + model_name, sess.graph)
-
+    
+    # Этот метод выполняет один "шаг" вычисления TensorFlow, запуская необходимый фрагмент графа для выполнения 
+    # каждой операции и оценки каждого тензора в выборках, 
+    # подставляя значения в feed_dict для соответствующих входных значений.
     sess.run(init)
     sess.run(init_local)
     sess.run(init_table)
+    # Учимся, Валидируем, Проверяем
     sess.run(train_iter.initializer)
     sess.run(val_iter.initializer)
     sess.run(test_iter.initializer)
 
+    # Запуск записи результатов
+    # 
     for step in range(1, MAX_STEPS + 1):
       if step % DISPLAY_STEP == 0:
         _, train_loss, merged_summary = sess.run(
             [train_op, train_loss_op, summaries])
-        summary_writer.add_summary(merged_summary, step)
+        summary_writer.add_summary(merged_summary, step) # Запись результатов работы на каждом шаге кратный 0. Шаг, величина ошибки.
         print("Step " + str(step) + " , Training Loss = " +
               "{:.4f}".format(train_loss))
       else:
-        _ = sess.run(train_op)
+        _ = sess.run(train_op) # Запуск расчета работы с оптимизированными градиентами.
 
       if step % VAL_STEP == 0:
         feed_arr = [
@@ -213,8 +220,8 @@ def main(unused_argv):
             vars()["val_acc_op"],
             vars()["test_acc_op"]
         ]
-
-        val_arr = sess.run(feed_arr)
+        # Запись валидационных результатов и результатов на тестовой выборке.
+        val_arr = sess.run(feed_arr) 
         merged_summary = val_arr[0]
         val_acc = val_arr[1]
 
@@ -223,7 +230,7 @@ def main(unused_argv):
         summary_writer.add_summary(merged_summary, step)
 
       if step % SAVE_STEP == 0:
-        saver.save(sess, "./checkpoints/" + model_name + ".ckpt")
+        saver.save(sess, "./checkpoints/" + model_name + ".ckpt") # сохранение точек и параметров.
 
 
 if __name__ == "__main__":
