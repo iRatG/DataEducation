@@ -104,7 +104,8 @@ def main(unused_argv):
   # Эта функция вычисляет разреженную кросс-энтропию softmax между логитами и метками. 
   # Другими словами, она измеряет вероятность ошибки в дискретных задачах классификации, 
   # в которых классы являются взаимоисключающими. 
-  # Это означает, что каждый элемент данных принадлежит только одному классу.
+  # Это означает, что каждый элемент данных принадлежит только одному классу. 
+  # Сверху все это усредняем.
   softmax_orig_key_op = tf.reduce_mean(
       tf.nn.sparse_softmax_cross_entropy_with_logits(
           logits=logits_orig_batch, labels=label_train_batch))
@@ -229,9 +230,9 @@ def main(unused_argv):
               "{:.4f}".format(val_acc))
         summary_writer.add_summary(merged_summary, step)
 
+        # сохранение точек и параметров.
       if step % SAVE_STEP == 0:
-        saver.save(sess, "./checkpoints/" + model_name + ".ckpt") # сохранение точек и параметров.
-
+        saver.save(sess, "./checkpoints/" + model_name + ".ckpt") 
 
 if __name__ == "__main__":
   app.run(main)

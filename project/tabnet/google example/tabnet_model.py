@@ -104,7 +104,7 @@ class TabNet(object):
       #===========Reads and normalizes input features.
       # Чтение входящих данных.
       features = tf.feature_column.input_layer(data, self.columns)
-      # Нормализация входящих данных.
+      # Нормализация входящих данных. Делаем это хорошо. Без виртуальностея. Моментум и Виртуальный батч не используем.
       features = tf.layers.batch_normalization(
           features, training=is_training, momentum=self.batch_momentum)
       # Возвращает тензор, содержащий размерность входного тензора.
@@ -151,7 +151,9 @@ class TabNet(object):
             reuse=reuse_flag,           # Переиспользовать переменные
             use_bias=False)             # Без использования вектора
 
-        transform_f1 = tf.layers.batch_normalization( # Нормализуем данные.
+        transform_f1 = tf.layers.batch_normalization( # Нормализуем данные.  Для повышения производительности при увеличении серий все 
+                                                      # операции BN, за исключением той, которая применяется к входным функциям, 
+                                                      # реализуются в форме ложного BN с виртуальным размером серии BV и импульсом mB
             transform_f1,                             # Весь слой передаем с Full Conected Layer..
             training=is_training,                     # Сообщаем, что обучаемся, чтобы запомнить все.
             momentum=self.batch_momentum,             # Импульс. Показатель для нормализации.
@@ -168,7 +170,10 @@ class TabNet(object):
             reuse=reuse_flag,           # Переиспользовать переменные
             use_bias=False)             # Без использования вектора
 
-        transform_f2 = tf.layers.batch_normalization( # Нормализуем данные
+        transform_f2 = tf.layers.batch_normalization( # Нормализуем данные. Для повышения производительности при увеличении серий все 
+                                                      # операции BN, за исключением той, которая применяется к входным функциям, 
+                                                      # реализуются в форме ложного BN с виртуальным размером серии BV и импульсом mB
+
             transform_f2,                             # Принимаем данные с Full Conected Layer.
             training=is_training,                     # Cообщаем, что обучаемся, чтобы запоминать данные.
             momentum=self.batch_momentum,             # Импульс с которым будем нормализовать данные.
@@ -185,7 +190,9 @@ class TabNet(object):
             name="Transform_f3" + str(ni),            # Наименование шага. Итерируемый номер.
             use_bias=False)                           # Без использования вектора.
 
-        transform_f3 = tf.layers.batch_normalization( # Нормализуем выход
+        transform_f3 = tf.layers.batch_normalization( # Нормализуем выход Для повышения производительности при увеличении серий все 
+                                                      # операции BN, за исключением той, которая применяется к входным функциям, 
+                                                      # реализуются в форме ложного BN с виртуальным размером серии BV и импульсом mB
             transform_f3,                             # Принимаем данные с предыдущего соя.
             training=is_training,                     # Сообщаем, что обучаемся, чтобы запоминать данные.
             momentum=self.batch_momentum,             # Импульс с которым будем нормализовывать данные.
@@ -224,46 +231,60 @@ class TabNet(object):
         features_for_coef = (transform_f4[:, self.output_dim:])
 
         if ni < self.num_decision_steps - 1:
-
+          # ===================ATTENTIVE TRANSFORMER=====================
+          # FC -> BN - SPARSEMAX - SCALE
           # Determines the feature masks via linear and nonlinear
           # transformations, taking into account of aggregated feature use.
-          mask_values = tf.layers.dense(
-              features_for_coef,
-              self.num_features,
-              name="Transform_coef" + str(ni),
-              use_bias=False)
-          mask_values = tf.layers.batch_normalization(
-              mask_values,
-              training=is_training,
-              momentum=self.batch_momentum,
+
+          mask_values = tf.layers.dense(        # Создание слоя Fully Connected
+              features_for_coef,                # Данные из FeatTrans блока
+              self.num_features,                # Входные фичи. количество
+              name="Transform_coef" + str(ni),  # Коэффициент трансформации
+              use_bias=False)                   # Без использования вектора.
+
+          mask_values = tf.layers.batch_normalization( # Виртуальная нормализация.
+              mask_values,                             # Данные с предыдущего слоя.
+              training=is_training,                    # Сообщаем, что обучаемся
+              momentum=self.batch_momentum,            # Данные для мнимой нормализации
               virtual_batch_size=v_b)
+
+          # Перемножаем. С Prior Scales. Предыдущего хода.
           mask_values *= complemantary_aggregated_mask_values
+          # Применяем SPARSEMAX, not SOFTMAX
           mask_values = tf.contrib.sparsemax.sparsemax(mask_values)
 
           # Relaxation factor controls the amount of reuse of features between
-          # different decision blocks and updated with the values of
-          # coefficients.
-          complemantary_aggregated_mask_values *= (
-              self.relaxation_factor - mask_values)
+          # different decision blocks and updated with the values of coefficients.
+          
+          # Коэффициент релаксации управляет количеством повторного использования признаков 
+          # между различными блоками принятия решений и обновляется значениями коэффициентов.
+          complemantary_aggregated_mask_values *= (self.relaxation_factor - mask_values)
 
-          # Entropy is used to penalize the amount of sparsity in feature
-          # selection.
+          # ================Блок ATTENTIVE TRANSFORMER завершен.================
+
+
+
+          # Entropy is used to penalize the amount of sparsity in feature selection.
+          # Энтропия используется, чтобы наказать количество разреженности в выборе признаков.
+
           total_entropy += tf.reduce_mean(
-              tf.reduce_sum(
-                  -mask_values * tf.log(mask_values + self.epsilon),
-                  axis=1)) / (
-                      self.num_decision_steps - 1)
+              tf.reduce_sum(-mask_values * 
+                            tf.log(mask_values + self.epsilon), 
+                            axis=1)) /
+                                    (self.num_decision_steps - 1)
 
           # Feature selection.
-          masked_features = tf.multiply(mask_values, features)
+          masked_features = tf.multiply(mask_values, features)    # Отбор необходимых признаков
 
           # Visualization of the feature selection mask at decision step ni
+          # Визуализация маски выбора объекта на этапе принятия решения ni
           tf.summary.image(
               "Mask for step" + str(ni),
               tf.expand_dims(tf.expand_dims(mask_values, 0), 3),
               max_outputs=1)
 
       # Visualization of the aggregated feature importances
+      # Визуализация агрегированных значений признаков
       tf.summary.image(
           "Aggregated mask",
           tf.expand_dims(tf.expand_dims(aggregated_mask_values, 0), 3),
