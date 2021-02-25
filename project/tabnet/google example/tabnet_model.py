@@ -23,13 +23,20 @@ import numpy as np
 import tensorflow as tf
 
 
+
+
 def glu(act, n_units):
-  """Generalized linear unit nonlinear activation."""
+  """=====================Generalized linear unit nonlinear activation."""
+# Сигмовидная функция страдает от проблемы «исчезающих градиентов», поскольку 
+# она сглаживается на обоих концах, что приводит к очень небольшим изменениям веса 
+# при обратном распространении. Это может заставить нейронную сеть отказаться 
+# учиться и застрять. По этой причине использование сигмоидальной функции заменяется 
+# другими нелинейными функциями, такими как выпрямленная линейная единица (ReLU).
   return act[:, :n_units] * tf.nn.sigmoid(act[:, n_units:])
 
 
 class TabNet(object):
-  """TabNet model class."""
+  """=====================TabNet model class."""
 
   def __init__(self,
                columns,
@@ -45,25 +52,34 @@ class TabNet(object):
     """Initializes a TabNet instance.
     Args:
       columns: The Tensorflow column names for the dataset.
+
       num_features: The number of input features (i.e the number of columns for
         tabular data assuming each feature is represented with 1 dimension).
+
       feature_dim: Dimensionality of the hidden representation in feature
         transformation block. Each layer first maps the representation to a
         2*feature_dim-dimensional output and half of it is used to determine the
         nonlinearity of the GLU activation where the other half is used as an
         input to GLU, and eventually feature_dim-dimensional output is
         transferred to the next layer.
+
       output_dim: Dimensionality of the outputs of each decision step, which is
         later mapped to the final classification or regression output.
+
       num_decision_steps: Number of sequential decision steps.
+
       relaxation_factor: Relaxation factor that promotes the reuse of each
         feature at different decision steps. When it is 1, a feature is enforced
         to be used only at one decision step and as it increases, more
         flexibility is provided to use a feature at multiple decision steps.
+
       batch_momentum: Momentum in ghost batch normalization.
+
       virtual_batch_size: Virtual batch size in ghost batch normalization. The
         overall batch size should be an integer multiple of virtual_batch_size.
+
       num_classes: Number of output classes.
+
       epsilon: A small number for numerical stability of the entropy calcations.
     Returns:
       A TabNet instance.
@@ -81,25 +97,35 @@ class TabNet(object):
     self.epsilon = epsilon
 
   def encoder(self, data, reuse, is_training):
-    """TabNet encoder model."""
-
+    """===========TabNet encoder model."""
+    # Контекстный менеджер для определения операций, создающих переменные (активация слоя).
     with tf.variable_scope("Encoder", reuse=reuse):
 
-      # Reads and normalizes input features.
+      #===========Reads and normalizes input features.
+      # Чтение входящих данных.
       features = tf.feature_column.input_layer(data, self.columns)
+      # Нормализация входящих данных.
       features = tf.layers.batch_normalization(
           features, training=is_training, momentum=self.batch_momentum)
+      # Возвращает тензор, содержащий размерность входного тензора.
       batch_size = tf.shape(features)[0]
 
-      # Initializes decision-step dependent variables.
+      # ===============Initializes decision-step dependent variables.\ Инициализация данных.
+      # Перенимаем выходную структуру нужной размерности слоя и заполняем нулями
       output_aggregated = tf.zeros([batch_size, self.output_dim])
+      # передаем в маску нормализованные данные.
       masked_features = features
+      # заполняем нулями вектор с заданной размерностью.
       mask_values = tf.zeros([batch_size, self.num_features])
+      # заполняем нулями вектор, который будет отвечать за агрегацию 
       aggregated_mask_values = tf.zeros([batch_size, self.num_features])
+      # заполняем единицами такой же вектор, заданной размерности
       complemantary_aggregated_mask_values = tf.ones(
           [batch_size, self.num_features])
+      # показатель энропии = 0
       total_entropy = 0
 
+      # Если обучаемся, задаем параметр входного виртаульного батча. Если нет, то будет один проход.
       if is_training:
         v_b = self.virtual_batch_size
       else:
@@ -111,47 +137,64 @@ class TabNet(object):
         # blocks is used below.
 
         reuse_flag = (ni > 0)
+        # Первый проход будет инициализирующим.
+        # Первый блок. FC -> BN -> GLU
 
-        transform_f1 = tf.layers.dense(
-            masked_features,
-            self.feature_dim * 2,
-            name="Transform_f1",
-            reuse=reuse_flag,
-            use_bias=False)
-        transform_f1 = tf.layers.batch_normalization(
-            transform_f1,
-            training=is_training,
-            momentum=self.batch_momentum,
-            virtual_batch_size=v_b)
-        transform_f1 = glu(transform_f1, self.feature_dim)
+        transform_f1 = tf.layers.dense( # Создаем слой.
+            masked_features,            # Принимаем на вход нормализованные данные.
+            self.feature_dim * 2,       # Размерность скрытого представления в блоке преобразования объектов. 
+                                        # Каждый слой сначала отображает представление на 2*feature_dim-мерный выход, 
+                                        # и половина его используется для определения нелинейности активации GLU, 
+                                        # где другая половина используется в качестве входного сигнала для GLU, 
+                                        # и в конечном итоге feature_dim-мерный выход передается следующему слою.
+            name="Transform_f1",        # Имя слоя
+            reuse=reuse_flag,           # Переиспользовать переменные
+            use_bias=False)             # Без использования вектора
 
-        transform_f2 = tf.layers.dense(
-            transform_f1,
-            self.feature_dim * 2,
-            name="Transform_f2",
-            reuse=reuse_flag,
-            use_bias=False)
-        transform_f2 = tf.layers.batch_normalization(
-            transform_f2,
-            training=is_training,
-            momentum=self.batch_momentum,
-            virtual_batch_size=v_b)
-        transform_f2 = (glu(transform_f2, self.feature_dim) +
-                        transform_f1) * np.sqrt(0.5)
+        transform_f1 = tf.layers.batch_normalization( # Нормализуем данные.
+            transform_f1,                             # Весь слой передаем с Full Conected Layer..
+            training=is_training,                     # Сообщаем, что обучаемся, чтобы запомнить все.
+            momentum=self.batch_momentum,             # Импульс. Показатель для нормализации.
+            virtual_batch_size=v_b)                   # размер батча
 
-        transform_f3 = tf.layers.dense(
-            transform_f2,
-            self.feature_dim * 2,
-            name="Transform_f3" + str(ni),
-            use_bias=False)
-        transform_f3 = tf.layers.batch_normalization(
-            transform_f3,
-            training=is_training,
-            momentum=self.batch_momentum,
-            virtual_batch_size=v_b)
-        transform_f3 = (glu(transform_f3, self.feature_dim) +
-                        transform_f2) * np.sqrt(0.5)
+        transform_f1 = glu(transform_f1, self.feature_dim) # применяем GLU и задаем размерность изначальную. 
+        # На этом первый блок закончен
 
+        # Второй блок. FC -> BN -> GLU Сумма под корнем.
+        transform_f2 = tf.layers.dense( # Создаем слой
+            transform_f1,               # Принимаем данные с первого слоя  
+            self.feature_dim * 2,       # Увеличиваем размерность.
+            name="Transform_f2",        # Имя слоя 
+            reuse=reuse_flag,           # Переиспользовать переменные
+            use_bias=False)             # Без использования вектора
+
+        transform_f2 = tf.layers.batch_normalization( # Нормализуем данные
+            transform_f2,                             # Принимаем данные с Full Conected Layer.
+            training=is_training,                     # Cообщаем, что обучаемся, чтобы запоминать данные.
+            momentum=self.batch_momentum,             # Импульс с которым будем нормализовать данные.
+            virtual_batch_size=v_b)                   # Размер батча
+
+        # Размерность уменьшаем до начальной. соединяем 2 набора и 1 и 2 после GLU. берем корень 
+        transform_f2 = (glu(transform_f2, self.feature_dim) + transform_f1) * np.sqrt(0.5)
+
+
+        # Теперь второй блок. Decision step  Зависимый
+        transform_f3 = tf.layers.dense(               # Создаем слой
+            transform_f2,                             # Принимаем на вход данные с первого блока
+            self.feature_dim * 2,                     # Увеличиваем объем слоя
+            name="Transform_f3" + str(ni),            # Наименование шага. Итерируемый номер.
+            use_bias=False)                           # Без использования вектора.
+
+        transform_f3 = tf.layers.batch_normalization( # Нормализуем выход
+            transform_f3,                             # Принимаем данные с предыдущего соя.
+            training=is_training,                     # Сообщаем, что обучаемся, чтобы запоминать данные.
+            momentum=self.batch_momentum,             # Импульс с которым будем нормализовывать данные.
+            virtual_batch_size=v_b)                   # Размер батча
+
+        # Размерность уменьшаем до начальной. соединяем 2 набора и 3 и 2 после GLUE. берем корень 
+        transform_f3 = (glu(transform_f3, self.feature_dim) + transform_f2) * np.sqrt(0.5)
+
+        # Второй шаг во втором блоке. Такой же как и предыдущий по логике.  
         transform_f4 = tf.layers.dense(
             transform_f3,
             self.feature_dim * 2,
@@ -162,21 +205,20 @@ class TabNet(object):
             training=is_training,
             momentum=self.batch_momentum,
             virtual_batch_size=v_b)
-        transform_f4 = (glu(transform_f4, self.feature_dim) +
-                        transform_f3) * np.sqrt(0.5)
+        transform_f4 = (glu(transform_f4, self.feature_dim) + transform_f3) * np.sqrt(0.5)
 
+        # Если Количество последовательных шагов принятия решения > 0
+        # Первый проход будет инициализирующим, поэтому сюда не войдет.
         if ni > 0:
-
+          # Первый расчет из выхода Feature Transform подаем на ReLU  
           decision_out = tf.nn.relu(transform_f4[:, :self.output_dim])
 
           # Decision aggregation.
-          output_aggregated += decision_out
+          output_aggregated += decision_out # Соединяем все расчеты между собой и они пойдут на выход FC
 
-          # Aggregated masks are used for visualization of the
-          # feature importance attributes.
-          scale_agg = tf.reduce_sum(
-              decision_out, axis=1, keep_dims=True) / (
-                  self.num_decision_steps - 1)
+          # Aggregated masks are used for visualization of the feature importance attributes.
+          # Агрегированные маски используются для визуализации атрибутов важности объектов.
+          scale_agg = tf.reduce_sum(decision_out, axis=1, keep_dims=True) / (self.num_decision_steps - 1)
           aggregated_mask_values += mask_values * scale_agg
 
         features_for_coef = (transform_f4[:, self.output_dim:])
@@ -231,10 +273,13 @@ class TabNet(object):
 
   def classify(self, activations, reuse):
     """TabNet classify block."""
-
+    # Контекстный менеджер для определения операций, создающих переменные (слои).
     with tf.variable_scope("Classify", reuse=reuse):
+      # Создание слоя для проверки результата.
       logits = tf.layers.dense(activations, self.num_classes, use_bias=False)
+      # Применение функции софтмакс для результатов слоя классификации.  
       predictions = tf.nn.softmax(logits)
+      # Возврат результата последнего слоя и результат классификации
       return logits, predictions
 
   def regress(self, activations, reuse):
