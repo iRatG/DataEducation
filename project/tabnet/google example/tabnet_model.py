@@ -262,8 +262,7 @@ class TabNet(object):
 
           # ================Блок ATTENTIVE TRANSFORMER завершен.================
 
-
-
+          
           # Entropy is used to penalize the amount of sparsity in feature selection.
           # Энтропия используется, чтобы наказать количество разреженности в выборе признаков.
 

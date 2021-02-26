@@ -4,34 +4,37 @@ from tabnet.custom_objects import glu, sparsemax, GroupNormalization
 
 class TransformBlock(tf.keras.Model):
 
-    def __init__(self, features,
+    def __init__(self, 
+                 features,
                  norm_type,
                  momentum=0.9,
                  virtual_batch_size=None,
                  groups=2,
                  block_name='',
                  **kwargs):
-        super(TransformBlock, self).__init__(**kwargs)
+        super(TransformBlock, self).__init__(**kwargs)  
+        #super to call super Class The __init__() Method
 
+        #Принимаем параметры со входа
         self.features = features
         self.norm_type = norm_type
         self.momentum = momentum
         self.groups = groups
         self.virtual_batch_size = virtual_batch_size
-
+        # слой входной    
         self.transform = tf.keras.layers.Dense(self.features, use_bias=False, name=f'transformblock_dense_{block_name}')
-
+        # Если тип нормализации batch то создаем слой. Ложный слой. Потому что используется импульс и виртуальный размер батча
         if norm_type == 'batch':
             self.bn = tf.keras.layers.BatchNormalization(axis=-1, momentum=momentum,
                                                          virtual_batch_size=virtual_batch_size,
                                                          name=f'transformblock_bn_{block_name}')
-
+        # иначе групповая функция нормализации. Не ложная.
         else:
             self.bn = GroupNormalization(axis=-1, groups=self.groups, name=f'transformblock_gn_{block_name}')
 
     def call(self, inputs, training=None):
-        x = self.transform(inputs)
-        x = self.bn(x, training=training)
+        x = self.transform(inputs)         # Слой трансформации
+        x = self.bn(x, training=training)  # Нормализация
         return x
 
 
@@ -98,7 +101,7 @@ class TabNet(tf.keras.Model):
         """
         super(TabNet, self).__init__(**kwargs)
 
-        # Input checks
+        # Input checks. Проверки входящих данных
         if feature_columns is not None:
             if type(feature_columns) not in (list, tuple):
                 raise ValueError("`feature_columns` must be a list or a tuple.")
@@ -121,6 +124,7 @@ class TabNet(tf.keras.Model):
         if feature_dim <= output_dim:
             raise ValueError("To compute `features_for_coef`, feature_dim must be larger than output dim")
 
+        # преобразование типов данных
         feature_dim = int(feature_dim)
         output_dim = int(output_dim)
         num_decision_steps = int(num_decision_steps)
@@ -142,6 +146,7 @@ class TabNet(tf.keras.Model):
         if norm_type not in ['batch', 'group']:
             raise ValueError("`norm_type` must be either `batch` or `group`")
 
+        # задание проверенных параметров    
         self.feature_columns = feature_columns
         self.num_features = num_features
         self.feature_dim = feature_dim
@@ -156,10 +161,12 @@ class TabNet(tf.keras.Model):
         self.num_groups = num_groups
         self.epsilon = epsilon
 
+        # features will be used for decision steps
         if num_decision_steps > 1:
             features_for_coeff = feature_dim - output_dim
             print(f"[TabNet]: {features_for_coeff} features will be used for decision steps.")
 
+        # Слой + слой нормализации.    
         if self.feature_columns is not None:
             self.input_features = tf.keras.layers.DenseFeatures(feature_columns, trainable=True)
 
@@ -172,26 +179,30 @@ class TabNet(tf.keras.Model):
             self.input_features = None
             self.input_bn = None
 
+        #  Создаем 1ый слой + нормализация   
         self.transform_f1 = TransformBlock(2 * self.feature_dim, self.norm_type,
                                            self.batch_momentum, self.virtual_batch_size, self.num_groups,
                                            block_name='f1')
-
+        #  Создаем 2ой слой + нормализация   
         self.transform_f2 = TransformBlock(2 * self.feature_dim, self.norm_type,
                                            self.batch_momentum, self.virtual_batch_size, self.num_groups,
                                            block_name='f2')
 
+        #  Создаем 3ой слой (список) + нормализация   прогоням по циклу
         self.transform_f3_list = [
             TransformBlock(2 * self.feature_dim, self.norm_type,
                            self.batch_momentum, self.virtual_batch_size, self.num_groups, block_name=f'f3_{i}')
             for i in range(self.num_decision_steps)
         ]
 
+        #  Создаем 4ый слой (список) + нормализация   прогоняем по циклу
         self.transform_f4_list = [
             TransformBlock(2 * self.feature_dim, self.norm_type,
                            self.batch_momentum, self.virtual_batch_size, self.num_groups, block_name=f'f4_{i}')
             for i in range(self.num_decision_steps)
         ]
 
+        # Создаем слой трансформации с нормализацией прогоняем по циклу
         self.transform_coef_list = [
             TransformBlock(self.num_features, self.norm_type,
                            self.batch_momentum, self.virtual_batch_size, self.num_groups, block_name=f'coef_{i}')
@@ -202,17 +213,19 @@ class TabNet(tf.keras.Model):
         self._step_aggregate_feature_selection_mask = None
 
     def call(self, inputs, training=None):
+        # основная работа алгоритма. число входных фич
         if self.input_features is not None:
             features = self.input_features(inputs)
             features = self.input_bn(features, training=training)
 
         else:
             features = inputs
-
+        # проверка входных данных    
         batch_size = tf.shape(features)[0]
         self._step_feature_selection_masks = []
         self._step_aggregate_feature_selection_mask = None
 
+        # Инициализация переменных, учавствующих в Attentive transformer
         # Initializes decision-step dependent variables.
         output_aggregated = tf.zeros([batch_size, self.output_dim])
         masked_features = features
@@ -223,7 +236,8 @@ class TabNet(tf.keras.Model):
 
         total_entropy = 0.0
         entropy_loss = 0.
-
+        
+        # Цикл по количеству шагов принятия решения
         for ni in range(self.num_decision_steps):
             # Feature transformer with two shared and two decision step dependent
             # blocks is used below.=
