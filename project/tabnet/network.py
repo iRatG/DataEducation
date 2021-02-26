@@ -60,40 +60,64 @@ class TabNet(tf.keras.models.Model):
         self.epsilon = epsilon
         self.encoder_type = encoder_type
 
+        # Входящий слой. Считываем данные.
         self.feature_layer = tf.keras.layers.DenseFeatures(self.columns, name='feature_layer')
+        # Нормализуем данные.
         self.feature_BN = tf.keras.layers.BatchNormalization(momentum=self.batch_momentum)
-        self.transform_f1_dense = tf.keras.layers.Dense(self.feature_dim * 2, name="Transform_f1", use_bias=False)
-        self.transform_f2_dense = tf.keras.layers.Dense(self.feature_dim * 2, name="Transform_f2", use_bias=False)
+        # Создаем 2 слоя
+        # Каждый слой сначала отображает представление на 2*feature_dim-мерный выход, 
+        # и половина его используется для определения нелинейности активации GLU, 
+        # где другая половина используется в качестве входного сигнала для GLU, 
+        # и в конечном итоге feature_dim-мерный выход передается следующему слою.
+        self.transform_f1_dense = tf.keras.layers.Dense(self.feature_dim * 2, 
+            name="Transform_f1", 
+            use_bias=False)
+        self.transform_f2_dense = tf.keras.layers.Dense(self.feature_dim * 2, 
+            name="Transform_f2", 
+            use_bias=False)
 
+
+        # Инициализируем для Feature Transformer и Attentive transofrmer
         self.transform_f1_BN = []
         self.transform_f2_BN = []
         self.transform_f3_dense = []
         self.transform_f3_BN = []
         self.transform_f4_dense = []
         self.transform_f4_BN = []
+        
         self.transform_coef = []
         self.transform_coef_BN = []
-        for ni in range(self.num_decision_steps):
-            self.transform_f1_BN.append(tf.keras.layers.BatchNormalization(momentum=self.batch_momentum)) #,
-                                                                           # virtual_batch_size=self.virtual_batch_size))
-            self.transform_f2_BN.append(tf.keras.layers.BatchNormalization(momentum=self.batch_momentum))#,
-                                                                           # virtual_batch_size=self.virtual_batch_size))
-            self.transform_f3_dense.append(tf.keras.layers.Dense(self.feature_dim * 2,
-                                                                 name="Transform_f3" + str(ni),
-                                                                 use_bias=False))
-            self.transform_f3_BN.append(tf.keras.layers.BatchNormalization(momentum=self.batch_momentum))#,
-                                                                           # virtual_batch_size=self.virtual_batch_size))
 
-            self.transform_f4_dense.append(tf.keras.layers.Dense(self.feature_dim * 2,
-                                                                 name="Transform_f4" + str(ni),
-                                                                 use_bias=False))
-            self.transform_f4_BN.append(tf.keras.layers.BatchNormalization(momentum=self.batch_momentum)) #,
-                                                                           # virtual_batch_size=self.virtual_batch_size))
-            self.transform_coef.append(tf.keras.layers.Dense(self.num_features,
-                                                             name="Transform_coef" + str(ni),
-                                                             use_bias=False))
-            self.transform_coef_BN.append(tf.keras.layers.BatchNormalization(momentum=self.batch_momentum)) #,
-                                                                             # virtual_batch_size=self.virtual_batch_size))
+        for ni in range(self.num_decision_steps):
+
+            self.transform_f1_BN.append(tf.keras.layers.BatchNormalization(momentum=self.batch_momentum)) 
+            #,# virtual_batch_size=self.virtual_batch_size)) в оригинале реализуются в форме ложного BN 
+            # с виртуальным размером серии BV и импульсом mB
+            self.transform_f2_BN.append(tf.keras.layers.BatchNormalization(momentum=self.batch_momentum))
+            #,# virtual_batch_size=self.virtual_batch_size)) в оригинале реализуются в форме ложного BN 
+            # с виртуальным размером серии BV и импульсом mB
+            
+            self.transform_f3_dense.append(tf.keras.layers.Dense(self.feature_dim * 2, 
+                name="Transform_f3" + str(ni),
+                use_bias=False))
+            self.transform_f3_BN.append(tf.keras.layers.BatchNormalization(momentum=self.batch_momentum))
+            #,# virtual_batch_size=self.virtual_batch_size)) в оригинале реализуются в форме ложного BN 
+            # с виртуальным размером серии BV и импульсом mB
+
+            self.transform_f4_dense.append(tf.keras.layers.Dense(self.feature_dim * 2, 
+                name="Transform_f4" + str(ni),
+                use_bias=False))
+            self.transform_f4_BN.append(tf.keras.layers.BatchNormalization(momentum=self.batch_momentum)) 
+            #,# virtual_batch_size=self.virtual_batch_size)) в оригинале реализуются в форме ложного BN 
+            # с виртуальным размером серии BV и импульсом mB
+        
+            self.transform_coef.append(tf.keras.layers.Dense(self.num_features, 
+                name="Transform_coef" + str(ni), 
+                use_bias=False))
+            self.transform_coef_BN.append(tf.keras.layers.BatchNormalization(momentum=self.batch_momentum)) 
+            #,# virtual_batch_size=self.virtual_batch_size)) в оригинале реализуются в форме ложного BN 
+            # с виртуальным размером серии BV и импульсом mB
+            
             if encoder_type == 'classification':
                 self.encoder_output = tf.keras.layers.Dense(self.num_classes, use_bias=False)
             else:
@@ -112,17 +136,27 @@ class TabNet(tf.keras.models.Model):
         output_aggregated = tf.zeros([batch_size, self.output_dim])
         masked_features = features
         mask_values = tf.zeros([batch_size, self.num_features])
-        complemantary_aggregated_mask_values = tf.ones(
-                [batch_size, self.num_features])
+        complemantary_aggregated_mask_values = tf.ones([batch_size, self.num_features])
         aggregated_mask_values = tf.zeros([batch_size, self.num_features])
         total_entropy = 0
         aggregated_mask_values_all = []
         mask_values_all = []
 
         for ni in range(self.num_decision_steps):
-            # TODO
 
-        output = self.encoder_output(output_aggregated)
+        # ===================FEATURE  TRANSFORMER===================            
+        # Первый блок. FC -> BN -> GLU
+        # На этом первый блок закончен
+
+        # Второй блок. FC -> BN -> GLU Сумма под корнем.
+        # Второй шаг во втором блоке. 
+        # ===================FEATURE  TRANSFORMER завершен===========  
+
+
+        # ===================ATTENTIVE TRANSFORMER===================
+        # FC -> BN - SPARSEMAX - SCALE
+        # ===================ATTENTIVE TRANSFORMER завершен.=========
+
         if self.encoder_type:
             if self.num_classes > 1:
                 output = tf.nn.softmax(output)

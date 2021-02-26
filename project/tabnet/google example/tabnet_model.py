@@ -198,7 +198,7 @@ class TabNet(object):
             momentum=self.batch_momentum,             # Импульс с которым будем нормализовывать данные.
             virtual_batch_size=v_b)                   # Размер батча
 
-        # Размерность уменьшаем до начальной. соединяем 2 набора и 3 и 2 после GLUE. берем корень 
+        # Размерность уменьшаем до начальной. соединяем 2 набора и 3 и 2 после GLU. берем корень 
         transform_f3 = (glu(transform_f3, self.feature_dim) + transform_f2) * np.sqrt(0.5)
 
         # Второй шаг во втором блоке. Такой же как и предыдущий по логике.  
@@ -268,10 +268,10 @@ class TabNet(object):
           # Энтропия используется, чтобы наказать количество разреженности в выборе признаков.
 
           total_entropy += tf.reduce_mean(
-              tf.reduce_sum(-mask_values * 
-                            tf.log(mask_values + self.epsilon), 
-                            axis=1)) /
-                                    (self.num_decision_steps - 1)
+              tf.reduce_sum(
+                  -mask_values * tf.log(mask_values + self.epsilon),
+                  axis=1)) / (
+                      self.num_decision_steps - 1)
 
           # Feature selection.
           masked_features = tf.multiply(mask_values, features)    # Отбор необходимых признаков

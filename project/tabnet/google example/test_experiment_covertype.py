@@ -36,7 +36,7 @@ TEST_FILE = "data/test_covertype.csv"
 MAX_STEPS = 10
 DISPLAY_STEP = 5
 VAL_STEP = 5
-SAVE_STEP = 40000
+SAVE_STEP = 4 #40000
 INIT_LEARNING_RATE = 0.02
 DECAY_EVERY = 500
 DECAY_RATE = 0.95
@@ -71,7 +71,7 @@ def main(unused_argv):
   for fi in range(len(column_names)):
     print(str(fi) + " : " + column_names[fi])
 
-  # Input sampling/ Разбитие на несколько выборок. Для тренировки, для обучения, валидации
+  # Input sampling
   train_batch = data_helper_covertype.input_fn(
       TRAIN_FILE, num_epochs=100000, shuffle=True, batch_size=BATCH_SIZE)
   val_batch = data_helper_covertype.input_fn(
@@ -85,135 +85,97 @@ def main(unused_argv):
       shuffle=False,
       batch_size=data_helper_covertype.N_TEST_SAMPLES)
 
-  # Создание итератора для последующего сохранения состояний.
   train_iter = train_batch.make_initializable_iterator()
   val_iter = val_batch.make_initializable_iterator()
   test_iter = test_batch.make_initializable_iterator()
-  # Иициализация и запуск итератора под своими именами.
+
   feature_train_batch, label_train_batch = train_iter.get_next()
   feature_val_batch, label_val_batch = val_iter.get_next()
   feature_test_batch, label_test_batch = test_iter.get_next()
 
   # Define the model and losses
-  # Прогнать обучающую выборку и результирующую по модели в прямом ходе
+
   encoded_train_batch, total_entropy = tabnet_forest_covertype.encoder(
       feature_train_batch, reuse=False, is_training=True)
-  # Классифицировать результат на выходе
+
   logits_orig_batch, _ = tabnet_forest_covertype.classify(
       encoded_train_batch, reuse=False)
-  # Эта функция вычисляет разреженную кросс-энтропию softmax между логитами и метками. 
-  # Другими словами, она измеряет вероятность ошибки в дискретных задачах классификации, 
-  # в которых классы являются взаимоисключающими. 
-  # Это означает, что каждый элемент данных принадлежит только одному классу. 
-  # Сверху все это усредняем.
+
   softmax_orig_key_op = tf.reduce_mean(
       tf.nn.sparse_softmax_cross_entropy_with_logits(
           logits=logits_orig_batch, labels=label_train_batch))
-  # Рассчитать ошибку на обучающих данных
+
   train_loss_op = softmax_orig_key_op + SPARSITY_LOSS_WEIGHT * total_entropy
-  # Рассчитать сумму средних ошибок.
   tf.summary.scalar("Total loss", train_loss_op)
 
-  # =======================Optimization step
-  global_step = tf.train.get_or_create_global_step() # Returns and create (if necessary) the global step tensor.
-  # При обучении модели часто рекомендуется снижать скорость обучения по мере продвижения обучения. 
-  # Эта функция применяет экспоненциальную функцию затухания к заданной начальной скорости обучения.
+  # Optimization step
+  global_step = tf.train.get_or_create_global_step()
   learning_rate = tf.train.exponential_decay(
       INIT_LEARNING_RATE,
       global_step=global_step,
       decay_steps=DECAY_EVERY,
       decay_rate=DECAY_RATE)
-
-  # Adam-алгоритм градиентной оптимизации
-  # стохастических целевых функций первого порядка, основанный на адаптивных оценках моментов более низкого порядка
   optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
-  # The standard library uses various well-known names to collect and retrieve values associated with a graph
   update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-  # иногда полезно знать какая версия значения переменной была использована в любой конкретной точке времени, 
-  # для того чтобы принудительно заставлять перечитывать значение переменной после того как что-то произошло
   with tf.control_dependencies(update_ops):
-    # Вычислить градиенты
     gvs = optimizer.compute_gradients(train_loss_op)
-    # Обрезает значения тензора до заданных значений min и max.
-    capped_gvs = [(tf.clip_by_value(grad, -GRADIENT_THRESH,GRADIENT_THRESH), var) for grad, var in gvs]
-    # Применение обработанныx градиентoв
+    capped_gvs = [(tf.clip_by_value(grad, -GRADIENT_THRESH,
+                                    GRADIENT_THRESH), var) for grad, var in gvs]
     train_op = optimizer.apply_gradients(capped_gvs, global_step=global_step)
 
-  # ===================Model evaluation \ Оценка модели
+  # Model evaluation
 
-  # ===================Validation performance
-  # Прогнать валидационную выборку, указать, что это переиспользование и что не обучение.
+  # Validation performance
   encoded_val_batch, _ = tabnet_forest_covertype.encoder(
       feature_val_batch, reuse=True, is_training=False)
-  # Классификация результирующего набора.
+
   _, prediction_val = tabnet_forest_covertype.classify(
       encoded_val_batch, reuse=True)
 
-  # Возвращает индекс и приводит тензор к новому типу.
   predicted_labels = tf.cast(tf.argmax(prediction_val, 1), dtype=tf.int32)
-  # Сверка значений.
   val_eq_op = tf.equal(predicted_labels, label_val_batch)
-  # Вычисляет среднее значение элементов по измерениям тензора.
   val_acc_op = tf.reduce_mean(tf.cast(val_eq_op, dtype=tf.float32))
-  # Сумма всех проверенных значений.
   tf.summary.scalar("Val accuracy", val_acc_op)
 
-  # ===================Test performance
-  # Прогнать тестовую выборку, указать, что не переиспользуется и что не обучение.
+  # Test performance
   encoded_test_batch, _ = tabnet_forest_covertype.encoder(
       feature_test_batch, reuse=True, is_training=False)
-  # Классификация результирующего набора.
+
   _, prediction_test = tabnet_forest_covertype.classify(
       encoded_test_batch, reuse=True)
 
-  # Возвращает индекс и приводит тензор к новому типу. 
   predicted_labels = tf.cast(tf.argmax(prediction_test, 1), dtype=tf.int32)
-  # Сверка значений
   test_eq_op = tf.equal(predicted_labels, label_test_batch)
-  # Вычисляет среднее значение элементов по измерениям тензора.
   test_acc_op = tf.reduce_mean(tf.cast(test_eq_op, dtype=tf.float32))
-  # Сумма всех проверенных значений.
   tf.summary.scalar("Test accuracy", test_acc_op)
 
-  # ===================Training setup
-  # Наименование модели.
+  # Training setup
   model_name = "tabnet_forest_covertype_model"
-  # Задание глобальных и локальных параметров.
   init = tf.initialize_all_variables()
   init_local = tf.local_variables_initializer()
-  # Возвращает операцию, которая инициализирует все таблицы графика по умолчанию.
   init_table = tf.tables_initializer(name="Initialize_all_tables")
-  # Сохранение всех значений переменных.
   saver = tf.train.Saver()
-  # Объединяет все информацию, собранную по графу по умолчанию
   summaries = tf.summary.merge_all()
 
-  # запись логов в заданную директорию
   with tf.Session() as sess:
     summary_writer = tf.summary.FileWriter("./tflog/" + model_name, sess.graph)
-    
-    # Этот метод выполняет один "шаг" вычисления TensorFlow, запуская необходимый фрагмент графа для выполнения 
-    # каждой операции и оценки каждого тензора в выборках, 
-    # подставляя значения в feed_dict для соответствующих входных значений.
+
     sess.run(init)
     sess.run(init_local)
     sess.run(init_table)
-    # Учимся, Валидируем, Проверяем
     sess.run(train_iter.initializer)
     sess.run(val_iter.initializer)
     sess.run(test_iter.initializer)
 
-    # Запуск записи результатов
-    # 
     for step in range(1, MAX_STEPS + 1):
       if step % DISPLAY_STEP == 0:
         _, train_loss, merged_summary = sess.run(
             [train_op, train_loss_op, summaries])
-        summary_writer.add_summary(merged_summary, step) # Запись результатов работы на каждом шаге кратный 0. Шаг, величина ошибки.
+        summary_writer.add_summary(merged_summary, step)
         print("Step " + str(step) + " , Training Loss = " +
               "{:.4f}".format(train_loss))
       else:
-        _ = sess.run(train_op) # Запуск расчета работы с оптимизированными градиентами.
+        _ = sess.run(train_op)
 
       if step % VAL_STEP == 0:
         feed_arr = [
@@ -221,8 +183,8 @@ def main(unused_argv):
             vars()["val_acc_op"],
             vars()["test_acc_op"]
         ]
-        # Запись валидационных результатов и результатов на тестовой выборке.
-        val_arr = sess.run(feed_arr) 
+
+        val_arr = sess.run(feed_arr)
         merged_summary = val_arr[0]
         val_acc = val_arr[1]
 
@@ -230,9 +192,9 @@ def main(unused_argv):
               "{:.4f}".format(val_acc))
         summary_writer.add_summary(merged_summary, step)
 
-        # сохранение точек и параметров.
       if step % SAVE_STEP == 0:
-        saver.save(sess, "./checkpoints/" + model_name + ".ckpt") 
+        saver.save(sess, "./checkpoints/" + model_name + ".ckpt")
+
 
 if __name__ == "__main__":
   app.run(main)
