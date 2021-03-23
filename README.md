@@ -32,6 +32,8 @@
 | <a href="https://www.coursera.org/learn/vvedenie-mashinnoe-obuchenie">Coursera</a> | Введение в машинное обучение  |  <a href="https://coursera.org/share/54f89a38f4f9a11f9c4ba281e324a7f6">Done </a>  |
 | <a href="https://www.coursera.org/learn/data-scientists-tools">Coursera</a>        | The Data Scientist’s Toolbox  |  <a href="https://coursera.org/share/06439500140806cf87f0a811db140092">Done  </a> |
 | <a href="https://www.coursera.org/learn/wharton-customer-analytics">Coursera</a>   | Customer Analytics            |  <a href="https://coursera.org/share/760011532f87299f616cb6cf8d7340aa">Done   </a>|
+| <a href="https://www.coursera.org/learn/mathematics-and-python">Coursera</a>   | Математика и Python для анализа данных            |  <a href="https://coursera.org/share/0f9022017f40ba780c192dff8e688bca">Done   </a>|
+
 
 
 ## Project Planning
