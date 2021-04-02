@@ -24,6 +24,7 @@
 | <a href="https://www.coursera.org/learn/diving-in-python">Coursera</a>        | Создание Web-сервисов на Python     			 |  <a href="https://coursera.org/share/f51fee3a4dbb0fe0a729a1739b693e3c">Done </a>  |
 | <a href="https://www.coursera.org/learn/python-for-data-science">Coursera</a>     | Python для анализа данных  | <a href="https://coursera.org/share/309c2a06a4f7898afd4b8927434a9c5f"> Done </a>
 |<a href="https://stepik.org/course/67/syllabus">Stepik</a>  | Программирование на Python |<a href="https://stepik.org/cert/890330">Done</a>|
+|<a href="https://stepik.org/course/512/syllabus">Stepik</a>  | Python: основы и применение |<a href="https://stepik.org/cert/930296">Done</a>|
 
 
 ## Data Science
