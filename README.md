@@ -63,8 +63,9 @@
 | ------------------------ |:---------------------------------:| -------:|
 |<a href="https://www.coursera.org/learn/big-data-essentials/home/welcome">Coursera</a>| Big Data Essentials: HDFS, MapReduce and Spark RDD| <a href="https://coursera.org/share/82ed5d2185a3ccf4b4fc471595676d2f"> Done </a>|
 |<a href="https://www.coursera.org/learn/big-data-introduction/home/welcome">Coursera</a>|Introduction to Big Data|<a href="https://coursera.org/share/432541b0e618f66e04b2912784216641">Done</a>|
-|<a href="https://www.datacamp.com/tracks/data-engineer-with-python"> DataCamp</a> 	 |	Data Engineer with Python	        |To Do|
+|<a href="https://www.coursera.org/learn/big-data-management/home/welcome">Coursera</a>|Big Data Modeling and Management Systems|<a href="https://coursera.org/share/721363fbe173e83c5ed47500a70bbfda">Done</a>|
 |<a href="https://stepik.org/course/150/"> Stepik</a> 	 |	Hadoop. Система для обработки больших объемов данных	        |<a href="https://stepik.org/cert/921048"> Done </a>|
+|<a href="https://www.datacamp.com/tracks/data-engineer-with-python"> DataCamp</a> 	 |	Data Engineer with Python	        |To Do|
 |<a href="https://www.udacity.com/course/intro-to-hadoop-and-mapreduce"> Udacity</a> 	 |	Intro to Hadoop and MapReduce	        |To Do|
 |<a href="https://www.udemy.com/apache-spark-with-scala-hands-on-with-big-data"> Udemy</a> 	 |	Apache Spark 2 with Scala - Hands On with Big Data!	        |To Do|
 |<a href="https://www.udemy.com/cart/success/294215128/"> Udemy</a> 	 |	Elasticsearch 7 and the Elastic Stack - In Depth & Hands On!	        |To Do|
