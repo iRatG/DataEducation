@@ -87,6 +87,6 @@
 |<a href="https://stepik.org/course/3089/"> Stepik</a> 	 |	Теория вероятностей|To Do|
 
 ## Решение задач
-Профиль на <a href="https://www.datacamp.com/profile/aratenator"> DataCamp </a>
+
 
 Профиль на <a href="https://leetcode.com/aratenator/"> LeetCode </a>
