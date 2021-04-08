@@ -85,3 +85,7 @@
 |<a href="https://stepik.org/course/524/"> Stepik</a> 	  |	Основы статистики. Часть 2	|To Do|
 |<a href="https://stepik.org/course/2152/"> Stepik</a> 	 |	Основы статистики. Часть 3	|To Do|
 |<a href="https://stepik.org/course/3089/"> Stepik</a> 	 |	Теория вероятностей|To Do|
+
+
+Профиль на <a href="https://www.datacamp.com/profile/aratenator"> DataCamp </a>
+Профиль на <a href="https://leetcode.com/aratenator/"> LeetCode </a>
