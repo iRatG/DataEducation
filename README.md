@@ -4,6 +4,7 @@
 ## Publication
 | <a href="https://habr.com/ru/users/ayratgil/posts/"> Статьи на habr'e </a>|
 |----|
+|<a href="https://habr.com/ru/post/585460/"> Apache Hive: от модели распределённых вычислений MapReduce компании Google до Big Data – хранилища больших данных </a>|
 | <a href="https://habr.com/ru/post/542302/"> Последовательное глубокое обучение для мониторинга кредитных рисков с использованием табличных финансовых данных </a>|
 |<a href="https://habr.com/ru/post/540736/"> TabNet. Немного деталей </a>|
 |<a href="https://habr.com/ru/post/539566/"> Автоматическое обучение взаимодействию функций с помощью самонастраиваемых нейронных сетей </a>|
