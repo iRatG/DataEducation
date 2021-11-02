@@ -26,6 +26,7 @@
 | <a href="https://www.coursera.org/learn/python-for-data-science">Coursera</a>     | Python для анализа данных  | <a href="https://coursera.org/share/309c2a06a4f7898afd4b8927434a9c5f"> Done </a>
 |<a href="https://stepik.org/course/67/syllabus">Stepik</a>  | Программирование на Python |<a href="https://stepik.org/cert/890330">Done</a>|
 |<a href="https://stepik.org/course/512/syllabus">Stepik</a>  | Python: основы и применение |<a href="https://stepik.org/cert/930296">Done</a>|
+|<a href="https://app.datacamp.com/learn/courses/intro-to-python-for-data-science">Datacamp</a> | Inroduction to Python | <a href="https://www.datacamp.com/statement-of-accomplishment/course/f8f270b19117a623d11326d0e940c84fa2c736c3">Done</a>|
 
 
 ## Data Science
