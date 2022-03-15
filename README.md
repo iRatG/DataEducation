@@ -48,6 +48,7 @@
 | <a href="https://www.coursera.org/learn/wharton-customer-analytics">Coursera</a>   | Customer Analytics            |  <a href="https://coursera.org/share/760011532f87299f616cb6cf8d7340aa">Done   </a>|
 | <a href="https://www.coursera.org/learn/mathematics-and-python">Coursera</a>   | Математика и Python для анализа данных            |  <a href="https://coursera.org/share/0f9022017f40ba780c192dff8e688bca">Done   </a>|
 | <a href="https://www.coursera.org/learn/supervised-learning">Coursera</a>   |  Обучение на размеченных данных          |  <a href="https://coursera.org/share/20651ed1dfc9ee0e5daf16342716b7da">Done   </a>|
+| <a href="https://www.coursera.org/learn/unsupervised-learning#about">Coursera</a>   |  Поиск структуры в данных         |  <a href="https://coursera.org/share/af5ae4bc1dc11529f4b11813fd56ac12">Done   </a>|
 
 
 
