@@ -1,9 +1,18 @@
+## Решение задач
+
+
+Профиль на <a href="https://leetcode.com/aratenator/"> LeetCode </a>
+Профиль на <a href="https://www.datacamp.com/profile/aratenator"> datacamp.com </a>
+
+
 # Data Education
  Self Education
 
 ## Publication
 | <a href="https://habr.com/ru/users/ayratgil/posts/"> Статьи на habr'e </a>|
 |----|
+|<a href="https://habr.com/ru/post/653683/"> DANets: Глубокие абстрактные сети для классификации и регрессии табличных данных </a>|
+|<a href="https://habr.com/ru/post/653171/"> Простые модификации для улучшения табличных нейронных сетей </a>|
 |<a href="https://habr.com/ru/post/647805/"> К реальной реставрации смазанного сканированием лица </a>|
 |<a href="https://habr.com/ru/post/653171/"> Простые модификации для улучшения табличных нейронных сетей </a>|
 |<a href="https://habr.com/ru/post/585460/"> Apache Hive: от модели распределённых вычислений MapReduce компании Google до Big Data – хранилища больших данных </a>|
@@ -29,7 +38,7 @@
 |<a href="https://stepik.org/course/67/syllabus">Stepik</a>  | Программирование на Python |<a href="https://stepik.org/cert/890330">Done</a>|
 |<a href="https://stepik.org/course/512/syllabus">Stepik</a>  | Python: основы и применение |<a href="https://stepik.org/cert/930296">Done</a>|
 |<a href="https://app.datacamp.com/learn/courses/intro-to-python-for-data-science">Datacamp</a> | Inroduction to Python | <a href="https://www.datacamp.com/statement-of-accomplishment/course/f8f270b19117a623d11326d0e940c84fa2c736c3">Done</a>|
-
+| <a href="https://www.coursera.org/learn/build-basic-generative-adversarial-networks-gans/home/welcome">Coursera</a>     | Build Basic Generative Adversarial Networks (GANs)  | <a href="https://coursera.org/share/96875be3055e38e04552a7d33bf68861"> Done </a>|
 
 ## Data Science
 | Course                   | Title                    							                        | Status  |
@@ -91,7 +100,4 @@
 |<a href="https://stepik.org/course/2152/"> Stepik</a> 	 |	Основы статистики. Часть 3	|To Do|
 |<a href="https://stepik.org/course/3089/"> Stepik</a> 	 |	Теория вероятностей|To Do|
 
-## Решение задач
 
-
-Профиль на <a href="https://leetcode.com/aratenator/"> LeetCode </a>
