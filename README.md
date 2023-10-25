@@ -39,8 +39,7 @@
 |<a href="https://stepik.org/course/512/syllabus">Stepik</a>  | Python: основы и применение |<a href="https://stepik.org/cert/930296">Done</a>|
 |<a href="https://app.datacamp.com/learn/courses/intro-to-python-for-data-science">Datacamp</a> | Inroduction to Python | <a href="https://www.datacamp.com/statement-of-accomplishment/course/f8f270b19117a623d11326d0e940c84fa2c736c3">Done</a>|
 | <a href="https://www.coursera.org/learn/build-basic-generative-adversarial-networks-gans/home/welcome">Coursera</a>     | Build Basic Generative Adversarial Networks (GANs)  | <a href="https://coursera.org/share/96875be3055e38e04552a7d33bf68861"> Done </a>|
-| <a href="https://stepik.org/course/63085/syllabus">Stepik</a>     | Инди-курс программирования на Python  | <a href="https://stepik.org/cert/2173737
-"> Done </a>|
+| <a href="https://stepik.org/course/63085/syllabus">Stepik</a>     | Инди-курс программирования на Python  | <a href="https://stepik.org/cert/2173737"> Done </a>|
 
 ## Data Science
 | Course                   | Title                    							                        | Status  |
